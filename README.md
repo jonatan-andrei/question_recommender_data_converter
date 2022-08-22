@@ -11,7 +11,7 @@ Learn more about Stack Exchange Dumps: https://archive.org/details/stackexchange
 
 To use this application, you need to define in the application.properties the folder path of the xml files that the application should read:
 ```
-xml.folder: 'C:\dump'
+xml.folder: C:\\dumps\\portuguese\\
 ```
 
 Now, review the port where Question Recommender is running on your computer:
