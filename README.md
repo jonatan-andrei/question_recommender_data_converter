@@ -9,13 +9,20 @@ To learn more about Question recommender visit the link: https://github.com/jona
 This application is especially useful for synchronizing Stack Exchange Dumps. 
 Learn more about Stack Exchange Dumps: https://archive.org/details/stackexchange
 
-To use this application, you need to define in the application.properties file the path of the xml files that the application should read:
-(TODO FORMATO E EXEMPLO)
+To use this application, you need to define in the application.properties the folder path of the xml files that the application should read:
+```
+xml.folder: 'C:\dump'
+```
 
 Now, review the port where Question Recommender is running on your computer:
-(TODO FORMATO)
+```
+question-recommender.url=localhost
+question-recommender.port=8079
+```
 
 Now, just run the application:
-(TODO COMANDO)
+```
+mvn compile quarkus:dev
+```
 
-Now you can call the endpoint (TODO ENDPOINT) and everything should work!
+Now you can call the endpoint POST localhost:8078/convert-data and everything should work!
