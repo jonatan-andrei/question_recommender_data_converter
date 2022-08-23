@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 public class User {
 
-    private Long Id;
+    private String Id;
 
     private Integer Reputation;
 

@@ -20,6 +20,8 @@ public class CreateUserRequestDto {
 
     private String integrationAnonymousUserId;
 
+    private String username;
+
     @NotNull
     private LocalDateTime registrationDate;
 

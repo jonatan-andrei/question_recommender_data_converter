@@ -25,8 +25,8 @@ public class ReadXmlFileService {
     @ConfigProperty(name = "xml.folder")
     String xmlFolder;
 
-    public List<Map<Field, String>> readXmlFile(String fileName, Class T) {
-        List<Map<Field, String>> mapFieldsList = new ArrayList<>();
+    public List<Map<String, String>> readXmlFile(String fileName, Class T) {
+        List<Map<String, String>> mapFieldsList = new ArrayList<>();
         try {
             // Reference: https://mkyong.com/java/how-to-read-xml-file-in-java-dom-parser/
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -43,9 +43,9 @@ public class ReadXmlFileService {
                     Element element = (Element) node;
 
                     List<Field> fields = Arrays.asList(T.getDeclaredFields());
-                    Map<Field, String> fieldsMap = new HashMap<>();
+                    Map<String, String> fieldsMap = new HashMap<>();
                     for (Field field : fields) {
-                        fieldsMap.put(field, element.getAttribute(field.getName()));
+                        fieldsMap.put(field.getName(), element.getAttribute(field.getName()));
                     }
                     mapFieldsList.add(fieldsMap);
                 }
