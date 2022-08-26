@@ -16,8 +16,13 @@ public class ConvertDataService {
     @Inject
     UserService userService;
 
+    @Inject
+    PostService postService;
+
     public void convertData(){
         userService.save();
+        postService.save();
+        postService.registerBestAnswer();
     }
 
 }
