@@ -13,6 +13,8 @@ public class Vote {
 
     private String PostId;
 
+    private String UserId;
+
     private String VoteTypeId;
 
     private LocalDateTime CreationDate;

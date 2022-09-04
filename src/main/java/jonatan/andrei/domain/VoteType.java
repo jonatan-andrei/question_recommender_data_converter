@@ -3,6 +3,8 @@ package jonatan.andrei.domain;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.stream.Stream;
+
 @AllArgsConstructor
 @Getter
 public enum VoteType {
@@ -22,4 +24,11 @@ public enum VoteType {
     InformModerator("13");
 
     private String voteTypeId;
+
+    public static VoteType findByVoteTypeId(String voteTypeId) {
+        return Stream.of(values())
+                .filter(v -> v.getVoteTypeId().equals(voteTypeId))
+                .findFirst()
+                .orElse(null);
+    }
 }

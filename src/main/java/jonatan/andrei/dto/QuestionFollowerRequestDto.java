@@ -6,24 +6,21 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VoteRequestDto {
+public class QuestionFollowerRequestDto {
 
     @NotBlank
-    private String integrationPostId;
+    private String integrationQuestionId;
 
     @NotBlank
     private String integrationUserId;
 
-    @NotNull
-    private String voteType;
+    private boolean followed;
 
-    private LocalDateTime voteDate;
-
+    private LocalDateTime startDate;
 }

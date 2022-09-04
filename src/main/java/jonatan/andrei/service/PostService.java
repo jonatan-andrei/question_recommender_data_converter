@@ -1,12 +1,14 @@
 package jonatan.andrei.service;
 
 import io.netty.util.internal.StringUtil;
+import jonatan.andrei.domain.PostLinkType;
 import jonatan.andrei.domain.PostType;
-import jonatan.andrei.dto.BestAnswerRequestDto;
-import jonatan.andrei.dto.CreatePostRequestDto;
-import jonatan.andrei.dto.ViewsRequestDto;
+import jonatan.andrei.domain.VoteType;
+import jonatan.andrei.dto.*;
 import jonatan.andrei.model.Comment;
 import jonatan.andrei.model.Post;
+import jonatan.andrei.model.PostLink;
+import jonatan.andrei.model.Vote;
 import jonatan.andrei.proxy.QuestionRecommenderProxy;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -81,13 +83,15 @@ public class PostService {
     }
 
     public void saveComments() {
-        // TODO consultar post para saber o tipo
         List<Map<String, String>> comments = readXmlFileService.readXmlFile("Comments", Comment.class);
         for (Map<String, String> comment : comments) {
+            String parentPostId = findValue("PostId", comment, Comment.class);
+            PostResponseDto postResponseDto = questionRecommenderProxy.findPost(parentPostId);
+
             questionRecommenderProxy.savePost(CreatePostRequestDto.builder()
                     .integrationPostId("C" + findValue("Id", comment, Comment.class))
-                    .integrationParentPostId(findValue("PostId", comment, Comment.class))
-                    .postType("QUESTION_COMMENT")
+                    .integrationParentPostId(parentPostId)
+                    .postType(PostType.QUESTION.equals(postResponseDto.getPostType()) ? "QUESTION_COMMENT" : "ANSWER_COMMENT")
                     .publicationDate(LocalDateTime.parse(findValue("CreationDate", comment, Comment.class)))
                     .title(null)
                     .contentOrDescription(findValue("Text", comment, Comment.class))
@@ -97,6 +101,34 @@ public class PostService {
                     .integrationUserId(findValue("UserId", comment, Comment.class))
                     .integrationAnonymousUserId(null)
                     .build());
+        }
+    }
+
+    public void saveQuestionFollower() {
+        List<Map<String, String>> votes = readXmlFileService.readXmlFile("Votes", Vote.class);
+        for (Map<String, String> vote : votes) {
+            VoteType voteType = VoteType.findByVoteTypeId(findValue("VoteTypeId", vote, Vote.class));
+            if (VoteType.Favorite.equals(voteType)) {
+                questionRecommenderProxy.saveFollower(QuestionFollowerRequestDto.builder()
+                        .integrationQuestionId(findValue("PostId", vote, Vote.class))
+                        .integrationUserId(findValue("UserId", vote, Vote.class))
+                        .followed(true)
+                        .startDate(LocalDateTime.parse(findValue("CreationDate", vote, Vote.class)))
+                        .build());
+            }
+        }
+    }
+
+    public void registerDuplicateQuestion() {
+        List<Map<String, String>> links = readXmlFileService.readXmlFile("PostLinks", PostLink.class);
+        for (Map<String, String> link : links) {
+            PostLinkType postLinkType = PostLinkType.findByPostLinkId(findValue("LinkTypeId", link, PostLink.class));
+            if (PostLinkType.DUPLICATE.equals(postLinkType)) {
+                questionRecommenderProxy.registerDuplicateQuestion(DuplicateQuestionRequestDto.builder()
+                        .integrationQuestionId(findValue("PostId", link, PostLink.class))
+                        .integrationDuplicateQuestionId((findValue("RelatedPostId", link, PostLink.class)))
+                        .build());
+            }
         }
     }
 
