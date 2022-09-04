@@ -25,7 +25,6 @@ public class ConvertDataService {
         postService.registerBestAnswer();
         postService.saveComments();
         postService.saveQuestionFollower();
-        postService.registerDuplicateQuestion();
     }
 
 }
