@@ -9,7 +9,6 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,20 +30,24 @@ public class UserService {
     public void save() {
         List<Map<String, String>> users = readXmlFileService.readXmlFile("Users", User.class);
         for (Map<String, String> user : users) {
-            questionRecommenderProxy.saveUser(CreateUserRequestDto.builder()
-                    .integrationUserId(findValue("Id", user, User.class))
-                    .username(findValue("DisplayName", user, User.class))
-                    .registrationDate(LocalDateTime.parse(findValue("CreationDate", user, User.class)))
-                    .userPreferences(UserPreferencesRequestDto.builder()
-                            .emailNotificationEnable(false)
-                            .notificationEnable(false)
-                            .recommendationEnable(false)
-                            .explicitIntegrationCategoriesIds(new ArrayList<>())
-                            .ignoredIntegrationCategoriesIds(new ArrayList<>())
-                            .explicitTags(new ArrayList<>())
-                            .ignoredTags(new ArrayList<>())
-                            .build())
-                    .build());
+            try {
+                questionRecommenderProxy.saveUser(CreateUserRequestDto.builder()
+                        .integrationUserId(findValue("Id", user, User.class))
+                        .username(findValue("DisplayName", user, User.class))
+                        .registrationDate(LocalDateTime.parse(findValue("CreationDate", user, User.class)))
+                        .userPreferences(UserPreferencesRequestDto.builder()
+                                .emailNotificationEnable(false)
+                                .notificationEnable(false)
+                                .recommendationEnable(false)
+                                .explicitIntegrationCategoriesIds(new ArrayList<>())
+                                .ignoredIntegrationCategoriesIds(new ArrayList<>())
+                                .explicitTags(new ArrayList<>())
+                                .ignoredTags(new ArrayList<>())
+                                .build())
+                        .build());
+            } catch (Exception e) {
+                log.error("Error converting user: " + findValue("Id", user, User.class), e);
+            }
         }
     }
 }

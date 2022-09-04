@@ -27,10 +27,14 @@ public class TagService {
     public void save() {
         List<Map<String, String>> tags = readXmlFileService.readXmlFile("Tags", Tag.class);
         for (Map<String, String> tag : tags) {
-            questionRecommenderProxy.saveTag(TagRequestDto.builder()
-                    .name(findValue("TagName", tag, Tag.class))
-                    .active(true)
-                    .build());
+            try {
+                questionRecommenderProxy.saveTag(TagRequestDto.builder()
+                        .name(findValue("TagName", tag, Tag.class))
+                        .active(true)
+                        .build());
+            } catch (Exception e) {
+                log.error("Error converting tag: " + findValue("Id", tag, Tag.class), e);
+            }
         }
     }
 
