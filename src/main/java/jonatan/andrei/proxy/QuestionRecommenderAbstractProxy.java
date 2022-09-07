@@ -1,8 +1,12 @@
 package jonatan.andrei.proxy;
 
+import jonatan.andrei.domain.RecommendationSettingsType;
 import jonatan.andrei.dto.*;
 
 import javax.ws.rs.*;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 public interface QuestionRecommenderAbstractProxy {
 
@@ -37,4 +41,42 @@ public interface QuestionRecommenderAbstractProxy {
     @PUT
     @Path("/post/register-duplicate_question")
     void registerDuplicateQuestion(DuplicateQuestionRequestDto duplicateQuestionRequestDto);
+
+    @DELETE
+    @Path("/question-recommender/clear")
+    void clear();
+
+    @DELETE
+    @Path("/question-recommender/clear-recommendations")
+    void clearRecommendations();
+
+    @POST
+    @Path("/recommendation-settings")
+    void saveRecommendationSettings(Map<RecommendationSettingsType, Integer> recommendationSettings);
+
+    @GET
+    @Path("/recommended-list")
+    RecommendedListResponseDto findRecommendedList(@QueryParam("lengthQuestionListPage") Integer lengthQuestionListPage,
+                                                   @QueryParam("integrationUserId") String integrationUserId,
+                                                   @QueryParam("dateOfRecommendations") LocalDateTime dateOfRecommendations,
+                                                   @QueryParam("pageNumber") Integer pageNumber);
+
+
+    @GET
+    @Path("/user/find-questions-answered-in-period")
+    List<QuestionsAnsweredByUserResponseDto> findQuestionsAnsweredInPeriod(@QueryParam("startDate") LocalDateTime startDate,
+                                                                           @QueryParam("endDate") LocalDateTime endDate,
+                                                                           @QueryParam("minimumOfPreviousAnswers") Integer minimumOfPreviousAnswers);
+
+    @GET
+    @Path("/user/find-user-tags")
+    List<UserTagDto> findUserTags(@QueryParam("lengthQuestionListPage") String integrationUserId);
+
+    @GET
+    @Path("/total-activity-system")
+    TotalActivitySystemResponseDto findByPostClassificationType(@QueryParam("postClassificationType") String postClassificationType);
+
+    @POST
+    @Path("/test-result")
+    void saveTestResult(TestResultRequestDto testResultRequestDto);
 }

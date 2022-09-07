@@ -1,5 +1,6 @@
 package jonatan.andrei.service;
 
+import jonatan.andrei.domain.RecommendationSettingsType;
 import jonatan.andrei.dto.*;
 import jonatan.andrei.proxy.QuestionRecommenderDatabaseProxy;
 import jonatan.andrei.proxy.QuestionRecommenderProxy;
@@ -8,6 +9,9 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 @Slf4j
@@ -84,4 +88,74 @@ public class QuestionRecommenderProxyService {
             questionRecommenderProxy.registerDuplicateQuestion(duplicateQuestionRequestDto);
         }
     }
+
+    void clear(boolean integrateWithQRDatabase) {
+        if (integrateWithQRDatabase) {
+            questionRecommenderDatabaseProxy.clear();
+        } else {
+            questionRecommenderProxy.clear();
+        }
+    }
+
+    void clearRecommendations(boolean integrateWithQRDatabase) {
+        if (integrateWithQRDatabase) {
+            questionRecommenderDatabaseProxy.clearRecommendations();
+        } else {
+            questionRecommenderProxy.clearRecommendations();
+        }
+    }
+
+    void saveRecommendationSettings(Map<RecommendationSettingsType, Integer> recommendationSettings, boolean integrateWithQRDatabase) {
+        if (integrateWithQRDatabase) {
+            questionRecommenderDatabaseProxy.saveRecommendationSettings(recommendationSettings);
+        } else {
+            questionRecommenderProxy.saveRecommendationSettings(recommendationSettings);
+        }
+    }
+
+    List<QuestionsAnsweredByUserResponseDto> findQuestionsAnsweredInPeriod(LocalDateTime startDate,
+                                                                           LocalDateTime endDate,
+                                                                           Integer minimumOfPreviousAnswers,
+                                                                           boolean integrateWithQRDatabase) {
+        if (integrateWithQRDatabase) {
+            return questionRecommenderDatabaseProxy.findQuestionsAnsweredInPeriod(startDate, endDate, minimumOfPreviousAnswers);
+        } else {
+            return questionRecommenderProxy.findQuestionsAnsweredInPeriod(startDate, endDate, minimumOfPreviousAnswers);
+        }
+    }
+
+    RecommendedListResponseDto findRecommendedList(Integer lengthQuestionListPage, String integrationUserId,
+                                                   LocalDateTime dateOfRecommendations, boolean integrateWithQRDatabase) {
+        if (integrateWithQRDatabase) {
+            return questionRecommenderDatabaseProxy.findRecommendedList(lengthQuestionListPage, integrationUserId, dateOfRecommendations, 1);
+        } else {
+            return questionRecommenderProxy.findRecommendedList(lengthQuestionListPage, integrationUserId, dateOfRecommendations, 1);
+        }
+    }
+
+    List<UserTagDto> findUserTags(String integrationUserId, boolean integrateWithQRDatabase) {
+        if (integrateWithQRDatabase) {
+            return questionRecommenderDatabaseProxy.findUserTags(integrationUserId);
+        } else {
+            return questionRecommenderProxy.findUserTags(integrationUserId);
+        }
+    }
+
+    TotalActivitySystemResponseDto findByPostClassificationType(boolean integrateWithQRDatabase) {
+        if (integrateWithQRDatabase) {
+            return questionRecommenderDatabaseProxy.findByPostClassificationType("TAG");
+        } else {
+            return questionRecommenderProxy.findByPostClassificationType("TAG");
+        }
+    }
+
+    void saveTestResult(TestResultRequestDto testResultRequestDto, boolean integrateWithQRDatabase) {
+        if (integrateWithQRDatabase) {
+            questionRecommenderDatabaseProxy.saveTestResult(testResultRequestDto);
+        } else {
+            questionRecommenderProxy.saveTestResult(testResultRequestDto);
+        }
+    }
+
+
 }
