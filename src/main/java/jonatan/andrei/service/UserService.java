@@ -3,9 +3,7 @@ package jonatan.andrei.service;
 import jonatan.andrei.dto.CreateUserRequestDto;
 import jonatan.andrei.dto.UserPreferencesRequestDto;
 import jonatan.andrei.model.User;
-import jonatan.andrei.proxy.QuestionRecommenderProxy;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -24,27 +22,29 @@ public class UserService {
     ReadXmlFileService readXmlFileService;
 
     @Inject
-    @RestClient
-    QuestionRecommenderProxy questionRecommenderProxy;
+    QuestionRecommenderProxyService questionRecommenderProxyService;
 
-    public void save() {
-        List<Map<String, String>> users = readXmlFileService.readXmlFile("Users", User.class);
+    public void save(LocalDateTime endDate, boolean integrateWithQRDatabase, String dumpName) {
+        List<Map<String, String>> users = readXmlFileService.readXmlFile(dumpName, "Users", User.class);
         for (Map<String, String> user : users) {
             try {
-                questionRecommenderProxy.saveUser(CreateUserRequestDto.builder()
-                        .integrationUserId(findValue("Id", user, User.class))
-                        .username(findValue("DisplayName", user, User.class))
-                        .registrationDate(LocalDateTime.parse(findValue("CreationDate", user, User.class)))
-                        .userPreferences(UserPreferencesRequestDto.builder()
-                                .emailNotificationEnable(false)
-                                .notificationEnable(false)
-                                .recommendationEnable(false)
-                                .explicitIntegrationCategoriesIds(new ArrayList<>())
-                                .ignoredIntegrationCategoriesIds(new ArrayList<>())
-                                .explicitTags(new ArrayList<>())
-                                .ignoredTags(new ArrayList<>())
-                                .build())
-                        .build());
+                LocalDateTime creationDate = LocalDateTime.parse(findValue("CreationDate", user, User.class));
+                if (creationDate.isBefore(endDate)) {
+                    questionRecommenderProxyService.saveUser(CreateUserRequestDto.builder()
+                            .integrationUserId(findValue("Id", user, User.class))
+                            .username(findValue("DisplayName", user, User.class))
+                            .registrationDate(creationDate)
+                            .userPreferences(UserPreferencesRequestDto.builder()
+                                    .emailNotificationEnable(false)
+                                    .notificationEnable(false)
+                                    .recommendationEnable(false)
+                                    .explicitIntegrationCategoriesIds(new ArrayList<>())
+                                    .ignoredIntegrationCategoriesIds(new ArrayList<>())
+                                    .explicitTags(new ArrayList<>())
+                                    .ignoredTags(new ArrayList<>())
+                                    .build())
+                            .build(), integrateWithQRDatabase);
+                }
             } catch (Exception e) {
                 log.error("Error converting user: " + findValue("Id", user, User.class), e);
             }

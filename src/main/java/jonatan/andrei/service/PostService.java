@@ -9,9 +9,7 @@ import jonatan.andrei.model.Comment;
 import jonatan.andrei.model.Post;
 import jonatan.andrei.model.PostLink;
 import jonatan.andrei.model.Vote;
-import jonatan.andrei.proxy.QuestionRecommenderProxy;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -32,22 +30,23 @@ public class PostService {
     ReadXmlFileService readXmlFileService;
 
     @Inject
-    @RestClient
-    QuestionRecommenderProxy questionRecommenderProxy;
+    QuestionRecommenderProxyService questionRecommenderProxyService;
 
-    public void save() {
-        List<Map<String, String>> posts = readXmlFileService.readXmlFile("Posts", Post.class);
+    public void save(LocalDateTime endDate, boolean integrateWithQRDatabase, String dumpName) {
+        List<Map<String, String>> posts = readXmlFileService.readXmlFile(dumpName, "Posts", Post.class);
         for (Map<String, String> post : posts) {
             try {
+                String id = findValue("Id", post, Post.class);
                 PostType postType = PostType.findByPostTypeId(findValue("PostTypeId", post, Post.class));
                 String userId = findValue("OwnerUserId", post, Post.class).trim();
-                if (nonNull(postType)) {
+                LocalDateTime creationDate = LocalDateTime.parse(findValue("CreationDate", post, Post.class));
+                if (nonNull(postType) && creationDate.isBefore(endDate)) {
                     boolean isQuestion = PostType.QUESTION.equals(postType);
-                    questionRecommenderProxy.savePost(CreatePostRequestDto.builder()
-                            .integrationPostId(findValue("Id", post, Post.class))
+                    questionRecommenderProxyService.savePost(CreatePostRequestDto.builder()
+                            .integrationPostId(id)
                             .integrationParentPostId(isQuestion ? null : findValue("ParentId", post, Post.class))
                             .postType(isQuestion ? "QUESTION" : "ANSWER")
-                            .publicationDate(LocalDateTime.parse(findValue("CreationDate", post, Post.class)))
+                            .publicationDate(creationDate)
                             .title(findValue("Title", post, Post.class).replaceAll("\\<.*?\\>", ""))
                             .contentOrDescription(findValue("Body", post, Post.class).replaceAll("\\<.*?\\>", ""))
                             .url(null)
@@ -55,17 +54,17 @@ public class PostService {
                             .tags(splitTags(findValue("Tags", post, Post.class)))
                             .integrationUserId(userId)
                             .integrationAnonymousUserId(isNull(userId) ? null : UUID.randomUUID().toString())
-                            .build());
+                            .build(), integrateWithQRDatabase);
 
                     if (isQuestion) {
                         Integer views = Optional.ofNullable(findValue("ViewCount", post, Post.class))
                                 .map(v -> Integer.valueOf(v))
                                 .orElse(0);
-                        questionRecommenderProxy.registerViews(ViewsRequestDto.builder()
+                        questionRecommenderProxyService.registerViews(ViewsRequestDto.builder()
                                 .integrationUsersId(new ArrayList<>())
                                 .totalViews(views)
                                 .integrationQuestionId(findValue("Id", post, Post.class))
-                                .build());
+                                .build(), integrateWithQRDatabase);
                     }
                 }
             } catch (Exception e) {
@@ -74,18 +73,20 @@ public class PostService {
         }
     }
 
-    public void registerBestAnswer() {
-        List<Map<String, String>> posts = readXmlFileService.readXmlFile("Posts", Post.class);
+    public void registerBestAnswer(LocalDateTime endDate, boolean integrateWithQRDatabase, String dumpName) {
+        List<Map<String, String>> posts = readXmlFileService.readXmlFile(dumpName, "Posts", Post.class);
         for (Map<String, String> post : posts) {
             try {
+                LocalDateTime creationDate = LocalDateTime.parse(findValue("CreationDate", post, Post.class));
                 boolean isQuestion = findValue("PostTypeId", post, Post.class).equals(PostType.QUESTION.getPostTypeId());
                 String bestAnswerId = (findValue("AcceptedAnswerId", post, Post.class));
-                if (isQuestion && !StringUtil.isNullOrEmpty(bestAnswerId)) {
-                    questionRecommenderProxy.registerBestAnswer(BestAnswerRequestDto.builder()
+                PostResponseDto postResponseDto = findPost(bestAnswerId, integrateWithQRDatabase);
+                if (isQuestion && !StringUtil.isNullOrEmpty(bestAnswerId) && creationDate.isBefore(endDate) && nonNull(postResponseDto)) {
+                    questionRecommenderProxyService.registerBestAnswer(BestAnswerRequestDto.builder()
                             .integrationQuestionId(findValue("Id", post, Post.class))
                             .integrationAnswerId(bestAnswerId)
                             .selected(true)
-                            .build());
+                            .build(), integrateWithQRDatabase);
                 }
             } catch (Exception e) {
                 log.error("Error converting post: " + findValue("Id", post, Post.class), e);
@@ -93,27 +94,30 @@ public class PostService {
         }
     }
 
-    public void saveComments() {
-        List<Map<String, String>> comments = readXmlFileService.readXmlFile("Comments", Comment.class);
+    public void saveComments(LocalDateTime endDate, boolean integrateWithQRDatabase, String dumpName) {
+        List<Map<String, String>> comments = readXmlFileService.readXmlFile(dumpName, "Comments", Comment.class);
         for (Map<String, String> comment : comments) {
             try {
-                String parentPostId = findValue("PostId", comment, Comment.class);
-                PostResponseDto postResponseDto = findPost(parentPostId);
-                String userId = findValue("UserId", comment, Comment.class);
-                if (nonNull(postResponseDto)) {
-                    questionRecommenderProxy.savePost(CreatePostRequestDto.builder()
-                            .integrationPostId("C" + findValue("Id", comment, Comment.class))
-                            .integrationParentPostId(parentPostId)
-                            .postType(PostType.QUESTION.equals(postResponseDto.getPostType()) ? "QUESTION_COMMENT" : "ANSWER_COMMENT")
-                            .publicationDate(LocalDateTime.parse(findValue("CreationDate", comment, Comment.class)))
-                            .title(null)
-                            .contentOrDescription(findValue("Text", comment, Comment.class))
-                            .url(null)
-                            .integrationCategoriesIds(new ArrayList<>())
-                            .tags(new ArrayList<>())
-                            .integrationUserId(userId)
-                            .integrationAnonymousUserId(isNull(userId) ? null : UUID.randomUUID().toString())
-                            .build());
+                LocalDateTime creationDate = LocalDateTime.parse(findValue("CreationDate", comment, Comment.class));
+                if (creationDate.isBefore(endDate)) {
+                    String parentPostId = findValue("PostId", comment, Comment.class);
+                    PostResponseDto postResponseDto = findPost(parentPostId, integrateWithQRDatabase);
+                    String userId = findValue("UserId", comment, Comment.class);
+                    if (nonNull(postResponseDto)) {
+                        questionRecommenderProxyService.savePost(CreatePostRequestDto.builder()
+                                .integrationPostId("C" + findValue("Id", comment, Comment.class))
+                                .integrationParentPostId(parentPostId)
+                                .postType(PostType.QUESTION.equals(postResponseDto.getPostType()) ? "QUESTION_COMMENT" : "ANSWER_COMMENT")
+                                .publicationDate(creationDate)
+                                .title(null)
+                                .contentOrDescription(findValue("Text", comment, Comment.class))
+                                .url(null)
+                                .integrationCategoriesIds(new ArrayList<>())
+                                .tags(new ArrayList<>())
+                                .integrationUserId(userId)
+                                .integrationAnonymousUserId(isNull(userId) ? null : UUID.randomUUID().toString())
+                                .build(), integrateWithQRDatabase);
+                    }
                 }
             } catch (Exception e) {
                 log.error("Error converting comment: " + findValue("Id", comment, Comment.class), e);
@@ -121,21 +125,24 @@ public class PostService {
         }
     }
 
-    public void saveQuestionFollower() {
-        List<Map<String, String>> votes = readXmlFileService.readXmlFile("Votes", Vote.class);
+    public void saveQuestionFollower(LocalDateTime endDate, boolean integrateWithQRDatabase, String dumpName) {
+        List<Map<String, String>> votes = readXmlFileService.readXmlFile(dumpName, "Votes", Vote.class);
         for (Map<String, String> vote : votes) {
             try {
-                String questionId = findValue("PostId", vote, Vote.class);
-                PostResponseDto question = findPost(questionId);
-                if (nonNull(question)) {
-                    VoteType voteType = VoteType.findByVoteTypeId(findValue("VoteTypeId", vote, Vote.class));
-                    if (VoteType.Favorite.equals(voteType)) {
-                        questionRecommenderProxy.saveFollower(QuestionFollowerRequestDto.builder()
-                                .integrationQuestionId(questionId)
-                                .integrationUserId(findValue("UserId", vote, Vote.class))
-                                .followed(true)
-                                .startDate(LocalDateTime.parse(findValue("CreationDate", vote, Vote.class)))
-                                .build());
+                LocalDateTime creationDate = LocalDateTime.parse(findValue("CreationDate", vote, Vote.class));
+                if (creationDate.isBefore(endDate)) {
+                    String questionId = findValue("PostId", vote, Vote.class);
+                    PostResponseDto question = findPost(questionId, integrateWithQRDatabase);
+                    if (nonNull(question)) {
+                        VoteType voteType = VoteType.findByVoteTypeId(findValue("VoteTypeId", vote, Vote.class));
+                        if (VoteType.Favorite.equals(voteType)) {
+                            questionRecommenderProxyService.saveFollower(QuestionFollowerRequestDto.builder()
+                                    .integrationQuestionId(questionId)
+                                    .integrationUserId(findValue("UserId", vote, Vote.class))
+                                    .followed(true)
+                                    .startDate(creationDate)
+                                    .build(), integrateWithQRDatabase);
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -144,16 +151,16 @@ public class PostService {
         }
     }
 
-    public void registerDuplicateQuestion() {
-        List<Map<String, String>> links = readXmlFileService.readXmlFile("PostLinks", PostLink.class);
+    public void registerDuplicateQuestion(LocalDateTime endDate, boolean integrateWithQRDatabase, String dumpName) {
+        List<Map<String, String>> links = readXmlFileService.readXmlFile(dumpName, "PostLinks", PostLink.class);
         for (Map<String, String> link : links) {
             try {
                 PostLinkType postLinkType = PostLinkType.findByPostLinkId(findValue("LinkTypeId", link, PostLink.class));
                 if (PostLinkType.DUPLICATE.equals(postLinkType)) {
-                    questionRecommenderProxy.registerDuplicateQuestion(DuplicateQuestionRequestDto.builder()
+                    questionRecommenderProxyService.registerDuplicateQuestion(DuplicateQuestionRequestDto.builder()
                             .integrationQuestionId(findValue("PostId", link, PostLink.class))
                             .integrationDuplicateQuestionId((findValue("RelatedPostId", link, PostLink.class)))
-                            .build());
+                            .build(), integrateWithQRDatabase);
                 }
             } catch (Exception e) {
                 log.error("Error converting link: " + findValue("Id", link, PostLink.class), e);
@@ -168,9 +175,9 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
-    private PostResponseDto findPost(String postId) {
+    private PostResponseDto findPost(String postId, boolean integrateWithQRDatabase) {
         try {
-            return questionRecommenderProxy.findPost(postId);
+            return questionRecommenderProxyService.findPost(postId, integrateWithQRDatabase);
         } catch (Exception e) {
             return null;
         }

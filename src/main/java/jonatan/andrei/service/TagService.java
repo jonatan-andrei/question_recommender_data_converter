@@ -8,6 +8,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -21,17 +22,16 @@ public class TagService {
     ReadXmlFileService readXmlFileService;
 
     @Inject
-    @RestClient
-    QuestionRecommenderProxy questionRecommenderProxy;
+    QuestionRecommenderProxyService questionRecommenderProxyService;
 
-    public void save() {
-        List<Map<String, String>> tags = readXmlFileService.readXmlFile("Tags", Tag.class);
+    public void save(LocalDateTime endDate, boolean integrateWithQRDatabase, String dumpName) {
+        List<Map<String, String>> tags = readXmlFileService.readXmlFile(dumpName, "Tags", Tag.class);
         for (Map<String, String> tag : tags) {
             try {
-                questionRecommenderProxy.saveTag(TagRequestDto.builder()
+                questionRecommenderProxyService.saveTag(TagRequestDto.builder()
                         .name(findValue("TagName", tag, Tag.class))
                         .active(true)
-                        .build());
+                        .build(), integrateWithQRDatabase);
             } catch (Exception e) {
                 log.error("Error converting tag: " + findValue("Id", tag, Tag.class), e);
             }

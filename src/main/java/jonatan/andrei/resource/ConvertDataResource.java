@@ -7,7 +7,9 @@ import javax.inject.Inject;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import java.time.LocalDateTime;
 
 @Path("/convert-data")
 @Slf4j
@@ -18,9 +20,10 @@ public class ConvertDataResource {
 
     @POST
     @Produces(MediaType.TEXT_PLAIN)
-    public void convertData() {
-        convertDataService.convertData();
+    public void convertData(@QueryParam("endDate") LocalDateTime endDate,
+                            @QueryParam("integrateWithQRDatabase") boolean integrateWithQRDatabase,
+                            @QueryParam("dumpName") String dumpName) {
+        convertDataService.convertData(endDate, integrateWithQRDatabase, dumpName);
     }
-
 
 }
