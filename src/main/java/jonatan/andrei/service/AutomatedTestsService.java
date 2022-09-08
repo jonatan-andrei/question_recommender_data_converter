@@ -1,7 +1,7 @@
 package jonatan.andrei.service;
 
 import jonatan.andrei.domain.Dump;
-import jonatan.andrei.domain.SettingsModel;
+import jonatan.andrei.domain.RecommendationSettingsType;
 import jonatan.andrei.domain.TestInformation;
 import jonatan.andrei.dto.QuestionsAnsweredByUserResponseDto;
 import jonatan.andrei.dto.RecommendedListResponseDto;
@@ -12,10 +12,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -26,6 +28,9 @@ public class AutomatedTestsService {
     ConvertDataService convertDataService;
 
     @Inject
+    SettingsModelService settingsModelService;
+
+    @Inject
     QuestionRecommenderProxyService questionRecommenderProxyService;
 
     @Transactional
@@ -34,7 +39,8 @@ public class AutomatedTestsService {
         for (Dump dump : dumps) {
             questionRecommenderProxyService.clear(true);
             convertDataService.convertData(dump.getEndDate(), true, dump.getDumpName());
-            List<TestInformation> tests = Arrays.asList(TestInformation.values());
+            List<TestInformation> tests = Arrays.asList(TestInformation.values())
+                    .stream().filter(t -> dump.equals(t.getDump())).collect(Collectors.toList());
             for (TestInformation testInformation : tests) {
                 startTest(testInformation, dump);
             }
@@ -44,17 +50,18 @@ public class AutomatedTestsService {
     private void startTest(TestInformation testInformation, Dump dump) {
         questionRecommenderProxyService.clear(false);
         convertDataService.convertData(testInformation.getEndDate(), false, dump.getDumpName());
-        for (SettingsModel settings : Arrays.asList(SettingsModel.values())) {
+        var settingsModels = settingsModelService.createSettingsModel();
+        for (var settings : settingsModels) {
             questionRecommenderProxyService.clearRecommendations(false);
-            questionRecommenderProxyService.saveRecommendationSettings(settings.getModelSettings(), false);
+            questionRecommenderProxyService.saveRecommendationSettings(settings, false);
             startTestBySettings(settings, testInformation, dump);
         }
     }
 
-    private void startTestBySettings(SettingsModel settings, TestInformation testInformation, Dump dump) {
+    private void startTestBySettings(Map<RecommendationSettingsType, Integer> settings, TestInformation testInformation, Dump dump) {
         List<TestResultRequestDto.TestResultUserRequestDto> resultUsers = new ArrayList<>();
         List<QuestionsAnsweredByUserResponseDto> questionsAnsweredByUserResponseDtoList = questionRecommenderProxyService.findQuestionsAnsweredInPeriod(
-                testInformation.getEndDate(), testInformation.getEndDate().plusDays(testInformation.getDaysAfterPartialEndDate()), testInformation.getMinimumOfPreviousAnswers(), false);
+                testInformation.getEndDate(), testInformation.getEndDate().plusDays(testInformation.getDaysAfterPartialEndDate()), testInformation.getMinimumOfPreviousAnswers(), true);
         for (QuestionsAnsweredByUserResponseDto questionsAnsweredByUserResponseDto : questionsAnsweredByUserResponseDtoList) {
             resultUsers.add(startTestByUser(questionsAnsweredByUserResponseDto));
         }
@@ -111,6 +118,9 @@ public class AutomatedTestsService {
     }
 
     private BigDecimal calculatePercentageRecommendations(Integer numberOfRecommendedQuestions, Integer numberOfQuestions) {
-        return BigDecimal.valueOf(numberOfRecommendedQuestions).multiply(BigDecimal.valueOf(100)).divide(BigDecimal.valueOf(numberOfQuestions));
+        if (numberOfRecommendedQuestions == 0 || numberOfQuestions == 0) {
+            return BigDecimal.ZERO;
+        }
+        return BigDecimal.valueOf(numberOfRecommendedQuestions).multiply(BigDecimal.valueOf(100)).divide(BigDecimal.valueOf(numberOfQuestions), 2, RoundingMode.HALF_UP);
     }
 }

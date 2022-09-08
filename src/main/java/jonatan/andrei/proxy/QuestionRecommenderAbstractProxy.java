@@ -50,7 +50,7 @@ public interface QuestionRecommenderAbstractProxy {
     @Path("/question-recommender/clear-recommendations")
     void clearRecommendations();
 
-    @POST
+    @PUT
     @Path("/recommendation-settings")
     void saveRecommendationSettings(Map<RecommendationSettingsType, Integer> recommendationSettings);
 
@@ -70,7 +70,7 @@ public interface QuestionRecommenderAbstractProxy {
 
     @GET
     @Path("/user/find-user-tags")
-    List<UserTagDto> findUserTags(@QueryParam("lengthQuestionListPage") String integrationUserId);
+    List<UserTagDto> findUserTags(@QueryParam("integrationUserId") String integrationUserId);
 
     @GET
     @Path("/total-activity-system")
