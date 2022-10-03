@@ -37,7 +37,7 @@ public class AutomatedTestsService {
     public void startAutomatedTests() {
         List<Dump> dumps = Arrays.asList(Dump.values());
         for (Dump dump : dumps) {
-            questionRecommenderProxyService.clear(true);
+            //questionRecommenderProxyService.clear(true);
             convertDataService.convertData(dump.getEndDate(), true, dump.getDumpName());
             List<TestInformation> tests = Arrays.asList(TestInformation.values())
                     .stream().filter(t -> dump.equals(t.getDump())).collect(Collectors.toList());
