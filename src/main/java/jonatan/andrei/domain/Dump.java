@@ -9,9 +9,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public enum Dump {
 
-    //PORTUGUESE("portuguese", LocalDateTime.parse("2022-06-05T03:02:17.153"));
-    //PT_STACKOVERLOW("ptstackoverflow", LocalDateTime.parse("2022-06-05T03:03:37.244"));
-    MOVIES("movies", LocalDateTime.parse("2022-06-05T00:17:55.464"));
+    MOVIES("movies", LocalDateTime.parse("2022-09-24T23:11:24.557")),
+    MATH("math", LocalDateTime.parse("2022-09-25T04:52:10.163")),
+    SUPERUSER("superuser", LocalDateTime.parse("2022-09-25T05:37:18.717")),
+    ASTRONOMY("astronomy", LocalDateTime.parse("2022-09-25T03:15:59.743")),
+    PT_STACKOVERFLOW("pt-stackoverflow", LocalDateTime.parse("2022-09-25T03:11:24.783"));
 
     private String dumpName;
 
