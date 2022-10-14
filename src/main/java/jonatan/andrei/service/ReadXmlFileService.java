@@ -38,7 +38,7 @@ public class ReadXmlFileService {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.parse(new File(File.separator + "opt" + File.separator + "dumps" + File.separator + dumpName + File.separator + fileName + ".xml"));
+            Document doc = db.parse(new File("." + File.separator + "opt" + File.separator + "dumps" + File.separator + dumpName + File.separator + fileName + ".xml"));
             doc.getDocumentElement().normalize();
             NodeList nodeList = doc.getElementsByTagName("row");
 
