@@ -26,4 +26,10 @@ public class ConvertDataResource {
         convertDataService.convertData(endDate, integrateWithQRDatabase, dumpName);
     }
 
+    @POST
+    @Produces(MediaType.TEXT_PLAIN)
+    public void convertDataTest(@QueryParam("dumpName") String dumpName) {
+        convertDataService.convertDataTest(dumpName);
+    }
+
 }
