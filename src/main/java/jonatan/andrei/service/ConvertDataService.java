@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import io.quarkus.logging.Log;
 
 @ApplicationScoped
 @Slf4j
@@ -38,7 +39,7 @@ public class ConvertDataService {
 
     public void convertDataTest(String dumpName) {
         List<Map<String, String>> tags = readXmlFileService.readXmlFile(dumpName, "Tags", Tag.class);
-        log.info("Found: " + tags.size());
+        Log.info("Found: " + tags.size());
     }
 
 }
