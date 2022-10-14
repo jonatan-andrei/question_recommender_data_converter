@@ -27,6 +27,7 @@ public class ConvertDataResource {
     }
 
     @POST
+    @Path("/test")
     @Produces(MediaType.TEXT_PLAIN)
     public void convertDataTest(@QueryParam("dumpName") String dumpName) {
         convertDataService.convertDataTest(dumpName);
