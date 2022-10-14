@@ -38,6 +38,7 @@ public class ConvertDataService {
 
     public void convertDataTest(String dumpName) {
         List<Map<String, String>> tags = readXmlFileService.readXmlFile(dumpName, "Tags", Tag.class);
+        log.info("Found: " + tags.size());
     }
 
 }
