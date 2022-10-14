@@ -1,6 +1,5 @@
 package jonatan.andrei.service;
 
-import jonatan.andrei.domain.RecommendationSettingsType;
 import jonatan.andrei.dto.*;
 import jonatan.andrei.proxy.QuestionRecommenderDatabaseProxy;
 import jonatan.andrei.proxy.QuestionRecommenderProxy;
@@ -105,7 +104,7 @@ public class QuestionRecommenderProxyService {
         }
     }
 
-    void saveRecommendationSettings(Map<RecommendationSettingsType, Integer> recommendationSettings, boolean integrateWithQRDatabase) {
+    void saveRecommendationSettings(List<RecommendationSettingsRequestDto> recommendationSettings, boolean integrateWithQRDatabase) {
         if (integrateWithQRDatabase) {
             questionRecommenderDatabaseProxy.saveRecommendationSettings(recommendationSettings);
         } else {

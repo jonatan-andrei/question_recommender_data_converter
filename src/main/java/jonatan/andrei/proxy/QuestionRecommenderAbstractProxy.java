@@ -1,6 +1,5 @@
 package jonatan.andrei.proxy;
 
-import jonatan.andrei.domain.RecommendationSettingsType;
 import jonatan.andrei.dto.*;
 
 import javax.ws.rs.*;
@@ -52,7 +51,7 @@ public interface QuestionRecommenderAbstractProxy {
 
     @PUT
     @Path("/recommendation-settings")
-    void saveRecommendationSettings(Map<RecommendationSettingsType, Integer> recommendationSettings);
+    void saveRecommendationSettings(List<RecommendationSettingsRequestDto> recommendationSettings);
 
     @GET
     @Path("/recommended-list")

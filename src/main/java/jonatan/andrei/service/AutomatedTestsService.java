@@ -1,9 +1,9 @@
 package jonatan.andrei.service;
 
 import jonatan.andrei.domain.Dump;
-import jonatan.andrei.domain.RecommendationSettingsType;
 import jonatan.andrei.domain.TestInformation;
 import jonatan.andrei.dto.QuestionsAnsweredByUserResponseDto;
+import jonatan.andrei.dto.RecommendationSettingsRequestDto;
 import jonatan.andrei.dto.RecommendedListResponseDto;
 import jonatan.andrei.dto.TestResultRequestDto;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +58,7 @@ public class AutomatedTestsService {
         }
     }
 
-    private void startTestBySettings(Map<RecommendationSettingsType, Integer> settings, TestInformation testInformation, Dump dump) {
+    private void startTestBySettings(List<RecommendationSettingsRequestDto> recommendationSettings, TestInformation testInformation, Dump dump) {
         List<TestResultRequestDto.TestResultUserRequestDto> resultUsers = new ArrayList<>();
         List<QuestionsAnsweredByUserResponseDto> questionsAnsweredByUserResponseDtoList = questionRecommenderProxyService.findQuestionsAnsweredInPeriod(
                 testInformation.getEndDate(), testInformation.getEndDate().plusDays(testInformation.getDaysAfterPartialEndDate()), testInformation.getMinimumOfPreviousAnswers(), true);
@@ -76,7 +76,7 @@ public class AutomatedTestsService {
                 .dumpName(dump.getDumpName())
                 .integratedDumpPercentage(testInformation.getPercentage())
                 .daysAfterDumpConsidered(testInformation.getDaysAfterPartialEndDate())
-                .settings(settings.toString())
+                .settings(recommendationSettings.toString())
                 .totalActivitySystem(questionRecommenderProxyService.findByPostClassificationType(false).toString())
                 .numberOfUsers(questionsAnsweredByUserResponseDtoList.size())
                 .numberOfQuestions(numberOfQuestions)
