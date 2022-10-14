@@ -3,7 +3,6 @@ package jonatan.andrei.service;
 import jonatan.andrei.domain.RecommendationChannelType;
 import jonatan.andrei.domain.RecommendationSettingsType;
 import jonatan.andrei.dto.RecommendationSettingsRequestDto;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.math.BigDecimal;
@@ -11,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
-@Slf4j
 public class SettingsModelService {
 
     public List<List<RecommendationSettingsRequestDto>> createSettingsModel() {

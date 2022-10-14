@@ -3,7 +3,7 @@ package jonatan.andrei.service;
 import jonatan.andrei.dto.CreateUserRequestDto;
 import jonatan.andrei.dto.UserPreferencesRequestDto;
 import jonatan.andrei.model.User;
-import lombok.extern.slf4j.Slf4j;
+import io.quarkus.logging.Log;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,7 +15,6 @@ import java.util.Map;
 import static jonatan.andrei.util.FieldUtil.findValue;
 
 @ApplicationScoped
-@Slf4j
 public class UserService {
 
     @Inject
@@ -46,7 +45,7 @@ public class UserService {
                             .build(), integrateWithQRDatabase);
                 }
             } catch (Exception e) {
-                log.error("Error converting user: " + findValue("Id", user, User.class), e);
+                Log.error("Error converting user: " + findValue("Id", user, User.class), e);
             }
         }
     }

@@ -1,7 +1,7 @@
 package jonatan.andrei.service;
 
+import io.quarkus.logging.Log;
 import jonatan.andrei.model.Tag;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -9,10 +9,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import io.quarkus.logging.Log;
 
 @ApplicationScoped
-@Slf4j
 public class ConvertDataService {
 
     @Inject

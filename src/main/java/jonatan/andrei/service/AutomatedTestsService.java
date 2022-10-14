@@ -6,7 +6,6 @@ import jonatan.andrei.dto.QuestionsAnsweredByUserResponseDto;
 import jonatan.andrei.dto.RecommendationSettingsRequestDto;
 import jonatan.andrei.dto.RecommendedListResponseDto;
 import jonatan.andrei.dto.TestResultRequestDto;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,11 +16,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-@Slf4j
 public class AutomatedTestsService {
 
     @Inject

@@ -9,7 +9,7 @@ import jonatan.andrei.model.Comment;
 import jonatan.andrei.model.Post;
 import jonatan.andrei.model.PostLink;
 import jonatan.andrei.model.Vote;
-import lombok.extern.slf4j.Slf4j;
+import io.quarkus.logging.Log;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -23,7 +23,6 @@ import static java.util.Objects.nonNull;
 import static jonatan.andrei.util.FieldUtil.findValue;
 
 @ApplicationScoped
-@Slf4j
 public class PostService {
 
     @Inject
@@ -68,7 +67,7 @@ public class PostService {
                     }
                 }
             } catch (Exception e) {
-                log.error("Error converting post: " + findValue("Id", post, Post.class), e);
+                Log.error("Error converting post: " + findValue("Id", post, Post.class), e);
             }
         }
     }
@@ -89,7 +88,7 @@ public class PostService {
                             .build(), integrateWithQRDatabase);
                 }
             } catch (Exception e) {
-                log.error("Error converting post: " + findValue("Id", post, Post.class), e);
+                Log.error("Error converting post: " + findValue("Id", post, Post.class), e);
             }
         }
     }
@@ -120,7 +119,7 @@ public class PostService {
                     }
                 }
             } catch (Exception e) {
-                log.error("Error converting comment: " + findValue("Id", comment, Comment.class), e);
+                Log.error("Error converting comment: " + findValue("Id", comment, Comment.class), e);
             }
         }
     }
@@ -146,7 +145,7 @@ public class PostService {
                     }
                 }
             } catch (Exception e) {
-                log.error("Error converting vote: " + findValue("Id", vote, Vote.class), e);
+                Log.error("Error converting vote: " + findValue("Id", vote, Vote.class), e);
             }
         }
     }
@@ -163,7 +162,7 @@ public class PostService {
                             .build(), integrateWithQRDatabase);
                 }
             } catch (Exception e) {
-                log.error("Error converting link: " + findValue("Id", link, PostLink.class), e);
+                Log.error("Error converting link: " + findValue("Id", link, PostLink.class), e);
             }
         }
     }

@@ -3,17 +3,14 @@ package jonatan.andrei.service;
 import jonatan.andrei.dto.*;
 import jonatan.andrei.proxy.QuestionRecommenderDatabaseProxy;
 import jonatan.andrei.proxy.QuestionRecommenderProxy;
-import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @ApplicationScoped
-@Slf4j
 public class QuestionRecommenderProxyService {
 
     @Inject

@@ -2,9 +2,7 @@ package jonatan.andrei.service;
 
 import jonatan.andrei.dto.TagRequestDto;
 import jonatan.andrei.model.Tag;
-import jonatan.andrei.proxy.QuestionRecommenderProxy;
-import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
+import io.quarkus.logging.Log;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,7 +13,6 @@ import java.util.Map;
 import static jonatan.andrei.util.FieldUtil.findValue;
 
 @ApplicationScoped
-@Slf4j
 public class TagService {
 
     @Inject
@@ -33,7 +30,7 @@ public class TagService {
                         .active(true)
                         .build(), integrateWithQRDatabase);
             } catch (Exception e) {
-                log.error("Error converting tag: " + findValue("Id", tag, Tag.class), e);
+                Log.error("Error converting tag: " + findValue("Id", tag, Tag.class), e);
             }
         }
     }

@@ -1,6 +1,6 @@
 package jonatan.andrei.service;
 
-import lombok.extern.slf4j.Slf4j;
+import io.quarkus.logging.Log;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -19,7 +19,6 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 @ApplicationScoped
-@Slf4j
 public class ReadXmlFileService {
 
     @ConfigProperty(name = "xml.folder")
@@ -52,7 +51,7 @@ public class ReadXmlFileService {
             }
 
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            log.error("Erro ao converter xml: ", e);
+            Log.error("Erro ao converter xml: ", e);
         }
         return mapFieldsList;
     }
