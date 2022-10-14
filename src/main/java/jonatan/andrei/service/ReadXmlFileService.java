@@ -27,7 +27,7 @@ public class ReadXmlFileService {
     public List<Map<String, String>> readXmlFile(String dumpName, String fileName, Class T) {
         List<Map<String, String>> mapFieldsList = new ArrayList<>();
         try {
-            File testFile = new File(File.separator + "opt" + File.separator + "dumps" + File.separator + dumpName + File.separator + "jonatanteste.txt");
+            File testFile = new File("jonatanteste.txt");
             if (testFile.createNewFile()) {
                 System.out.println("File created: " + testFile.getName());
             } else {
