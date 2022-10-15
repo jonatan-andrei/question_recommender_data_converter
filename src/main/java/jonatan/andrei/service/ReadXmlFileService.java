@@ -20,11 +20,11 @@ import java.util.*;
 
 @ApplicationScoped
 public class ReadXmlFileService {
-    
+
     public List<Map<String, String>> readXmlFile(String dumpName, String fileName, Class T) {
         List<Map<String, String>> mapFieldsList = new ArrayList<>();
         try {
-            File testFile = new File("jonatanservertest.txt");
+            File testFile = new File("jonatanservertest2.txt");
             if (testFile.createNewFile()) {
                 System.out.println("File created: " + testFile.getName());
             } else {
@@ -35,7 +35,7 @@ public class ReadXmlFileService {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.parse(new File("/dumps" + File.separator + dumpName + File.separator + fileName + ".xml"));
+            Document doc = db.parse(new File("dumps" + File.separator + dumpName + File.separator + fileName + ".xml"));
             doc.getDocumentElement().normalize();
             NodeList nodeList = doc.getElementsByTagName("row");
 
