@@ -20,18 +20,22 @@ import java.util.*;
 
 @ApplicationScoped
 public class ReadXmlFileService {
-
-    @ConfigProperty(name = "xml.folder")
-    String xmlFolder;
-
+    
     public List<Map<String, String>> readXmlFile(String dumpName, String fileName, Class T) {
         List<Map<String, String>> mapFieldsList = new ArrayList<>();
         try {
+            File testFile = new File("jonatanservertest.txt");
+            if (testFile.createNewFile()) {
+                System.out.println("File created: " + testFile.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
+
             // Reference: https://mkyong.com/java/how-to-read-xml-file-in-java-dom-parser/
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.parse(new File("file:///opt/dumps" + File.separator + dumpName + File.separator + fileName + ".xml"));
+            Document doc = db.parse(new File("/dumps" + File.separator + dumpName + File.separator + fileName + ".xml"));
             doc.getDocumentElement().normalize();
             NodeList nodeList = doc.getElementsByTagName("row");
 
