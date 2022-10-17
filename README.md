@@ -9,20 +9,14 @@ To learn more about Question recommender visit the link: https://github.com/jona
 This application is especially useful for synchronizing Stack Exchange Dumps. 
 Learn more about Stack Exchange Dumps: https://archive.org/details/stackexchange
 
-To use this application, you need to define in the application.properties the folder path of the xml files that the application should read:
-```
-xml.folder: C:\\dumps\\portuguese\\
-```
-
-Now, review the port where Question Recommender is running on your computer:
-```
-question-recommender.url=localhost
-question-recommender.port=8079
-```
+To use this application, review the port where Question Recommender is running on your computer and configure in application.properties.
 
 Now, just run the application:
 ```
 mvn compile quarkus:dev
 ```
 
-Now you can call the endpoint POST localhost:8078/convert-data and everything should work!
+Now you can call the endpoint POST localhost:8077/automated-tests and everything should work!
+
+In case you want to test a specific scenario, try this endpoint: POST localhost:8077/automated-tests/test-information?testInformation={testInformation}&settings={settings}&clearQR=true&clearQRDatabase=true
+
