@@ -5,7 +5,6 @@ import jonatan.andrei.dto.*;
 import javax.ws.rs.*;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 public interface QuestionRecommenderAbstractProxy {
 
@@ -78,4 +77,8 @@ public interface QuestionRecommenderAbstractProxy {
     @POST
     @Path("/test-result")
     void saveTestResult(TestResultRequestDto testResultRequestDto);
+
+    @GET
+    @Path("/test-information")
+    TestInformationResponseDto findTestInformation(@QueryParam("testInformation") String testInformation, @QueryParam("settingsModel") Integer settingsModel);
 }

@@ -3,8 +3,8 @@ package jonatan.andrei.service;
 import jonatan.andrei.domain.Dump;
 import jonatan.andrei.domain.TestInformation;
 import jonatan.andrei.dto.QuestionsAnsweredByUserResponseDto;
-import jonatan.andrei.dto.RecommendationSettingsRequestDto;
 import jonatan.andrei.dto.RecommendedListResponseDto;
+import jonatan.andrei.dto.TestInformationResponseDto;
 import jonatan.andrei.dto.TestResultRequestDto;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -49,16 +49,42 @@ public class AutomatedTestsService {
         convertDataService.convertData(testInformation.getEndDate(), false, dump.getDumpName());
         var settingsModels = settingsModelService.createSettingsModel();
         for (var settings : settingsModels) {
-            questionRecommenderProxyService.clearRecommendations(false);
-            questionRecommenderProxyService.saveRecommendationSettings(settings, false);
-            startTestBySettings(settings, testInformation, dump);
+            TestInformationResponseDto testInformationResponseDto = TestInformationResponseDto.builder()
+                    .dumpName(dump.name())
+                    .dumpEndDate(dump.getEndDate())
+                    .endDateTestInformation(testInformation.getEndDate())
+                    .daysAfterPartialEndDate(testInformation.getDaysAfterPartialEndDate())
+                    .minimumOfPreviousAnswers(testInformation.getMinimumOfPreviousAnswers())
+                    .percentage(testInformation.getPercentage())
+                    .settings(settings)
+                    .build();
+            startTestBySettings(testInformationResponseDto);
         }
     }
 
-    private void startTestBySettings(List<RecommendationSettingsRequestDto> recommendationSettings, TestInformation testInformation, Dump dump) {
+    @Transactional
+    public void startTestByTestInformation(String testInformation, Integer settings, boolean clearQR, boolean clearQRDatabase) {
+        TestInformationResponseDto testInformationResponseDto = questionRecommenderProxyService.findTestInformation(testInformation, settings);
+
+        if (clearQRDatabase) {
+            questionRecommenderProxyService.clear(true);
+            convertDataService.convertData(testInformationResponseDto.getDumpEndDate(), true, testInformationResponseDto.getDumpName());
+        }
+
+        if (clearQR) {
+            questionRecommenderProxyService.clear(false);
+            convertDataService.convertData(testInformationResponseDto.getEndDateTestInformation(), false, testInformationResponseDto.getDumpName());
+        }
+
+        startTestBySettings(testInformationResponseDto);
+    }
+
+    public void startTestBySettings(TestInformationResponseDto testInformationResponseDto) {
+        questionRecommenderProxyService.clearRecommendations(false);
+        questionRecommenderProxyService.saveRecommendationSettings(testInformationResponseDto.getSettings(), false);
         List<TestResultRequestDto.TestResultUserRequestDto> resultUsers = new ArrayList<>();
         List<QuestionsAnsweredByUserResponseDto> questionsAnsweredByUserResponseDtoList = questionRecommenderProxyService.findQuestionsAnsweredInPeriod(
-                testInformation.getEndDate(), testInformation.getEndDate().plusDays(testInformation.getDaysAfterPartialEndDate()), testInformation.getMinimumOfPreviousAnswers(), true);
+                testInformationResponseDto.getEndDateTestInformation(), testInformationResponseDto.getDumpEndDate().plusDays(testInformationResponseDto.getDaysAfterPartialEndDate()), testInformationResponseDto.getMinimumOfPreviousAnswers(), true);
         for (QuestionsAnsweredByUserResponseDto questionsAnsweredByUserResponseDto : questionsAnsweredByUserResponseDtoList) {
             resultUsers.add(startTestByUser(questionsAnsweredByUserResponseDto));
         }
@@ -70,10 +96,10 @@ public class AutomatedTestsService {
                 .mapToInt(Integer::intValue).sum();
 
         TestResultRequestDto testResultRequestDto = TestResultRequestDto.builder()
-                .dumpName(dump.getDumpName())
-                .integratedDumpPercentage(testInformation.getPercentage())
-                .daysAfterDumpConsidered(testInformation.getDaysAfterPartialEndDate())
-                .settings(recommendationSettings.toString())
+                .dumpName(testInformationResponseDto.getDumpName())
+                .integratedDumpPercentage(testInformationResponseDto.getPercentage())
+                .daysAfterDumpConsidered(testInformationResponseDto.getDaysAfterPartialEndDate())
+                .settings(testInformationResponseDto.getSettings().toString())
                 .totalActivitySystem(questionRecommenderProxyService.findByPostClassificationType(false).toString())
                 .numberOfUsers(questionsAnsweredByUserResponseDtoList.size())
                 .numberOfQuestions(numberOfQuestions)

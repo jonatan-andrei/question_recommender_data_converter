@@ -153,5 +153,9 @@ public class QuestionRecommenderProxyService {
         }
     }
 
+    TestInformationResponseDto findTestInformation(String testInformation, Integer settingsModel) {
+        return questionRecommenderProxy.findTestInformation(testInformation, settingsModel);
+    }
+
 
 }
