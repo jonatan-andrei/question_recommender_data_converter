@@ -84,7 +84,7 @@ public class AutomatedTestsService {
         questionRecommenderProxyService.saveRecommendationSettings(testInformationResponseDto.getSettings(), false);
         List<TestResultRequestDto.TestResultUserRequestDto> resultUsers = new ArrayList<>();
         List<QuestionsAnsweredByUserResponseDto> questionsAnsweredByUserResponseDtoList = questionRecommenderProxyService.findQuestionsAnsweredInPeriod(
-                testInformationResponseDto.getEndDateTestInformation(), testInformationResponseDto.getDumpEndDate().plusDays(testInformationResponseDto.getDaysAfterPartialEndDate()), testInformationResponseDto.getMinimumOfPreviousAnswers(), true);
+                testInformationResponseDto.getEndDateTestInformation(), testInformationResponseDto.getEndDateTestInformation().plusDays(testInformationResponseDto.getDaysAfterPartialEndDate()), testInformationResponseDto.getMinimumOfPreviousAnswers(), true);
         for (QuestionsAnsweredByUserResponseDto questionsAnsweredByUserResponseDto : questionsAnsweredByUserResponseDtoList) {
             resultUsers.add(startTestByUser(questionsAnsweredByUserResponseDto));
         }
