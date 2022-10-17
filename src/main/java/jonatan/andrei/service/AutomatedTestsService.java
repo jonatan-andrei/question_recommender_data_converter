@@ -1,5 +1,6 @@
 package jonatan.andrei.service;
 
+import io.quarkus.logging.Log;
 import jonatan.andrei.domain.Dump;
 import jonatan.andrei.domain.TestInformation;
 import jonatan.andrei.dto.QuestionsAnsweredByUserResponseDto;
@@ -95,12 +96,14 @@ public class AutomatedTestsService {
                 .map(TestResultRequestDto.TestResultUserRequestDto::getNumberOfRecommendedQuestions)
                 .mapToInt(Integer::intValue).sum();
 
+        String totalActivitySystem = questionRecommenderProxyService.findByPostClassificationType(false).toString();
+
         TestResultRequestDto testResultRequestDto = TestResultRequestDto.builder()
                 .dumpName(testInformationResponseDto.getDumpName())
                 .integratedDumpPercentage(testInformationResponseDto.getPercentage())
                 .daysAfterDumpConsidered(testInformationResponseDto.getDaysAfterPartialEndDate())
-                .settings(testInformationResponseDto.getSettings().toString())
-                .totalActivitySystem(questionRecommenderProxyService.findByPostClassificationType(false).toString())
+                .settings(testInformationResponseDto.getSettings().toString().substring(0, Math.min(79999, testInformationResponseDto.getSettings().toString().length())))
+                .totalActivitySystem(totalActivitySystem.substring(0, Math.min(79999, totalActivitySystem.length())))
                 .numberOfUsers(questionsAnsweredByUserResponseDtoList.size())
                 .numberOfQuestions(numberOfQuestions)
                 .numberOfRecommendedQuestions(numberOfRecommendedQuestions)
@@ -128,15 +131,17 @@ public class AutomatedTestsService {
                 .collect(Collectors.toList())
                 .size();
 
+        String userTags = questionRecommenderProxyService.findUserTags(questionsAnsweredByUserResponseDto.getIntegrationUserId(), false).toString();
+
         return TestResultRequestDto.TestResultUserRequestDto.builder()
                 .integrationUserId(questionsAnsweredByUserResponseDto.getIntegrationUserId())
                 .numberOfQuestions(questionsAnsweredByUserResponseDto.getQuestions().size())
                 .numberOfRecommendedQuestions(numberOfRecommendedQuestions)
                 .percentageOfCorrectRecommendations(calculatePercentageRecommendations(numberOfRecommendedQuestions, questionsAnsweredByUser.size()))
                 .error(false)
-                .userTags(questionRecommenderProxyService.findUserTags(questionsAnsweredByUserResponseDto.getIntegrationUserId(), false).toString())
-                .questions(questionsAnsweredByUserResponseDto.getQuestions().toString())
-                .recommendedQuestions(recommendedListResponseDto.getQuestions().toString())
+                .userTags(userTags.substring(0, Math.min(79999, userTags.length())))
+                .questions(questionsAnsweredByUserResponseDto.getQuestions().toString().substring(0, Math.min(79999, questionsAnsweredByUserResponseDto.getQuestions().toString().length())))
+                .recommendedQuestions(recommendedListResponseDto.getQuestions().toString().substring(0, Math.min(79999, recommendedListResponseDto.getQuestions().toString().length())))
                 .build();
     }
 
