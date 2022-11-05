@@ -1,5 +1,6 @@
 package jonatan.andrei.resource;
 
+import jonatan.andrei.domain.SettingsModelType;
 import jonatan.andrei.service.AutomatedTestsService;
 
 import javax.inject.Inject;
@@ -24,7 +25,7 @@ public class AutomatedTestsResource {
     @POST
     @Path("/test-information")
     @Produces(MediaType.TEXT_PLAIN)
-    public void startAutomatedTests(@QueryParam("testInformation") String testInformation, @QueryParam("settings") Integer settings, @QueryParam("clearQR") boolean clearQR, @QueryParam("clearQRDatabase") boolean clearQRDatabase) {
+    public void startAutomatedTests(@QueryParam("testInformation") String testInformation, @QueryParam("settings") SettingsModelType settings, @QueryParam("clearQR") boolean clearQR, @QueryParam("clearQRDatabase") boolean clearQRDatabase) {
         automatedTestsService.startTestByTestInformation(testInformation, settings, clearQR, clearQRDatabase);
     }
 

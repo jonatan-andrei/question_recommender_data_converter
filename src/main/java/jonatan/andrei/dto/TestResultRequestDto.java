@@ -1,5 +1,6 @@
 package jonatan.andrei.dto;
 
+import jonatan.andrei.domain.SettingsModelType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,6 +28,8 @@ public class TestResultRequestDto {
 
     @NotNull
     private String settings;
+
+    private SettingsModelType settingsModel;
 
     @NotNull
     private String totalActivitySystem;

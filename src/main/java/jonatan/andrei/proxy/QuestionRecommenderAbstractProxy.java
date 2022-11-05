@@ -1,5 +1,6 @@
 package jonatan.andrei.proxy;
 
+import jonatan.andrei.domain.SettingsModelType;
 import jonatan.andrei.dto.*;
 
 import javax.ws.rs.*;
@@ -80,5 +81,5 @@ public interface QuestionRecommenderAbstractProxy {
 
     @GET
     @Path("/test-information")
-    TestInformationResponseDto findTestInformation(@QueryParam("testInformation") String testInformation, @QueryParam("settingsModel") Integer settingsModel);
+    TestInformationResponseDto findTestInformation(@QueryParam("testInformation") String testInformation, @QueryParam("settingsModel") SettingsModelType settingsModel);
 }

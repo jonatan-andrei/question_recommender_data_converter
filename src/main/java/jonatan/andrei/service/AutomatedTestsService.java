@@ -2,6 +2,7 @@ package jonatan.andrei.service;
 
 import io.quarkus.logging.Log;
 import jonatan.andrei.domain.Dump;
+import jonatan.andrei.domain.SettingsModelType;
 import jonatan.andrei.domain.TestInformation;
 import jonatan.andrei.dto.QuestionsAnsweredByUserResponseDto;
 import jonatan.andrei.dto.RecommendedListResponseDto;
@@ -64,7 +65,7 @@ public class AutomatedTestsService {
     }
 
     @Transactional
-    public void startTestByTestInformation(String testInformation, Integer settings, boolean clearQR, boolean clearQRDatabase) {
+    public void startTestByTestInformation(String testInformation, SettingsModelType settings, boolean clearQR, boolean clearQRDatabase) {
         TestInformationResponseDto testInformationResponseDto = questionRecommenderProxyService.findTestInformation(testInformation, settings);
 
         if (clearQRDatabase) {
@@ -103,6 +104,7 @@ public class AutomatedTestsService {
                 .integratedDumpPercentage(testInformationResponseDto.getPercentage())
                 .daysAfterDumpConsidered(testInformationResponseDto.getDaysAfterPartialEndDate())
                 .settings(testInformationResponseDto.getSettings().toString().substring(0, Math.min(79999, testInformationResponseDto.getSettings().toString().length())))
+                .settingsModel(testInformationResponseDto.getSettingsModel())
                 .totalActivitySystem(totalActivitySystem.substring(0, Math.min(79999, totalActivitySystem.length())))
                 .numberOfUsers(questionsAnsweredByUserResponseDtoList.size())
                 .numberOfQuestions(numberOfQuestions)
@@ -112,7 +114,7 @@ public class AutomatedTestsService {
                 .users(resultUsers)
                 .build();
 
-        questionRecommenderProxyService.saveTestResult(testResultRequestDto, false);
+        questionRecommenderProxyService.saveTestResult(testResultRequestDto);
     }
 
     private TestResultRequestDto.TestResultUserRequestDto startTestByUser(QuestionsAnsweredByUserResponseDto questionsAnsweredByUserResponseDto) {

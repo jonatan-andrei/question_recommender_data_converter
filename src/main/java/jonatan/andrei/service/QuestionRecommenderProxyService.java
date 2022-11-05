@@ -1,8 +1,10 @@
 package jonatan.andrei.service;
 
+import jonatan.andrei.domain.SettingsModelType;
 import jonatan.andrei.dto.*;
 import jonatan.andrei.proxy.QuestionRecommenderDatabaseProxy;
 import jonatan.andrei.proxy.QuestionRecommenderProxy;
+import jonatan.andrei.proxy.QuestionRecommenderTestResultProxy;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -20,6 +22,13 @@ public class QuestionRecommenderProxyService {
     @Inject
     @RestClient
     QuestionRecommenderDatabaseProxy questionRecommenderDatabaseProxy;
+
+    @Inject
+    @RestClient
+    QuestionRecommenderTestResultProxy questionRecommenderTestResultProxy;
+
+    @Inject
+    QuestionRecommenderCustomProxyService questionRecommenderCustomProxyService;
 
     public void saveUser(CreateUserRequestDto createUserRequestDto, boolean integrateWithQRDatabase) {
         if (integrateWithQRDatabase) {
@@ -122,11 +131,7 @@ public class QuestionRecommenderProxyService {
 
     RecommendedListResponseDto findRecommendedList(Integer lengthQuestionListPage, String integrationUserId,
                                                    LocalDateTime dateOfRecommendations, boolean integrateWithQRDatabase) {
-        if (integrateWithQRDatabase) {
-            return questionRecommenderDatabaseProxy.findRecommendedList(lengthQuestionListPage, integrationUserId, dateOfRecommendations, 1);
-        } else {
-            return questionRecommenderProxy.findRecommendedList(lengthQuestionListPage, integrationUserId, dateOfRecommendations, 1);
-        }
+        return questionRecommenderCustomProxyService.findRecommendedList(lengthQuestionListPage, integrationUserId, dateOfRecommendations, 1);
     }
 
     List<UserTagDto> findUserTags(String integrationUserId, boolean integrateWithQRDatabase) {
@@ -145,16 +150,12 @@ public class QuestionRecommenderProxyService {
         }
     }
 
-    void saveTestResult(TestResultRequestDto testResultRequestDto, boolean integrateWithQRDatabase) {
-        if (integrateWithQRDatabase) {
-            questionRecommenderDatabaseProxy.saveTestResult(testResultRequestDto);
-        } else {
-            questionRecommenderProxy.saveTestResult(testResultRequestDto);
-        }
+    void saveTestResult(TestResultRequestDto testResultRequestDto) {
+        questionRecommenderTestResultProxy.saveTestResult(testResultRequestDto);
     }
 
-    TestInformationResponseDto findTestInformation(String testInformation, Integer settingsModel) {
-        return questionRecommenderProxy.findTestInformation(testInformation, settingsModel);
+    TestInformationResponseDto findTestInformation(String testInformation, SettingsModelType settingsModel) {
+        return questionRecommenderTestResultProxy.findTestInformation(testInformation, settingsModel);
     }
 
 
