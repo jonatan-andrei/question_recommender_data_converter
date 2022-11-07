@@ -24,7 +24,7 @@ public class ReadXmlFileService {
     public List<Map<String, String>> readXmlFile(String dumpName, String fileName, Class T) {
         List<Map<String, String>> mapFieldsList = new ArrayList<>();
         try {
-            File testFile = new File("jonatanservertest4.txt");
+            File testFile = new File("jonatanservertest5.txt");
             if (testFile.createNewFile()) {
                 System.out.println("File created: " + testFile.getName());
             } else {
@@ -33,7 +33,7 @@ public class ReadXmlFileService {
 
             // Reference: https://mkyong.com/java/how-to-read-xml-file-in-java-dom-parser/
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, false);
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(new File("dumps" + File.separator + dumpName + File.separator + fileName + ".xml"));
             doc.getDocumentElement().normalize();
