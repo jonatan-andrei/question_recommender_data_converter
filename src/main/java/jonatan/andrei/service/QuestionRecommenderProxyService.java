@@ -111,11 +111,7 @@ public class QuestionRecommenderProxyService {
     }
 
     void saveRecommendationSettings(List<RecommendationSettingsRequestDto> recommendationSettings, boolean integrateWithQRDatabase) {
-        if (integrateWithQRDatabase) {
-            questionRecommenderDatabaseProxy.saveRecommendationSettings(recommendationSettings);
-        } else {
-            questionRecommenderProxy.saveRecommendationSettings(recommendationSettings);
-        }
+        questionRecommenderCustomProxyService.saveRecommendationSettings(recommendationSettings);
     }
 
     List<QuestionsAnsweredByUserResponseDto> findQuestionsAnsweredInPeriod(LocalDateTime startDate,
