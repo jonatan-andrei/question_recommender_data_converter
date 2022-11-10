@@ -1,6 +1,7 @@
 package jonatan.andrei.service;
 
 import io.netty.util.internal.StringUtil;
+import io.quarkus.logging.Log;
 import jonatan.andrei.domain.PostLinkType;
 import jonatan.andrei.domain.PostType;
 import jonatan.andrei.domain.VoteType;
@@ -9,7 +10,6 @@ import jonatan.andrei.model.Comment;
 import jonatan.andrei.model.Post;
 import jonatan.andrei.model.PostLink;
 import jonatan.andrei.model.Vote;
-import io.quarkus.logging.Log;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -41,13 +41,14 @@ public class PostService {
                 LocalDateTime creationDate = LocalDateTime.parse(findValue("CreationDate", post, Post.class));
                 if (nonNull(postType) && creationDate.isBefore(endDate)) {
                     boolean isQuestion = PostType.QUESTION.equals(postType);
+                    String contentOrDescription = findValue("Body", post, Post.class).replaceAll("\\<.*?\\>", "");
                     questionRecommenderProxyService.savePost(CreatePostRequestDto.builder()
                             .integrationPostId(id)
                             .integrationParentPostId(isQuestion ? null : findValue("ParentId", post, Post.class))
                             .postType(isQuestion ? "QUESTION" : "ANSWER")
                             .publicationDate(creationDate)
                             .title(findValue("Title", post, Post.class).replaceAll("\\<.*?\\>", ""))
-                            .contentOrDescription(findValue("Body", post, Post.class).replaceAll("\\<.*?\\>", ""))
+                            .contentOrDescription(contentOrDescription.substring(0, Math.min(23999, contentOrDescription.length())))
                             .url(null)
                             .integrationCategoriesIds(new ArrayList<>())
                             .tags(splitTags(findValue("Tags", post, Post.class)))
@@ -103,13 +104,14 @@ public class PostService {
                     PostResponseDto postResponseDto = findPost(parentPostId, integrateWithQRDatabase);
                     String userId = findValue("UserId", comment, Comment.class);
                     if (nonNull(postResponseDto)) {
+                        String contentOrDescription = findValue("Text", comment, Comment.class);
                         questionRecommenderProxyService.savePost(CreatePostRequestDto.builder()
                                 .integrationPostId("C" + findValue("Id", comment, Comment.class))
                                 .integrationParentPostId(parentPostId)
                                 .postType(PostType.QUESTION.equals(postResponseDto.getPostType()) ? "QUESTION_COMMENT" : "ANSWER_COMMENT")
                                 .publicationDate(creationDate)
                                 .title(null)
-                                .contentOrDescription(findValue("Text", comment, Comment.class))
+                                .contentOrDescription(contentOrDescription.substring(0, Math.min(23999, contentOrDescription.length())))
                                 .url(null)
                                 .integrationCategoriesIds(new ArrayList<>())
                                 .tags(new ArrayList<>())
