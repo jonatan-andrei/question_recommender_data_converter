@@ -14,7 +14,9 @@ public enum Dump {
     MATH("math", LocalDateTime.parse("2022-09-25T04:52:10.163")),
     SUPERUSER("superuser", LocalDateTime.parse("2022-09-25T05:37:18.717")),
     ASTRONOMY("astronomy", LocalDateTime.parse("2022-09-25T03:15:59.743")),
-    MOVIES("movies", LocalDateTime.parse("2022-09-24T23:11:24.557"));
+    MOVIES("movies", LocalDateTime.parse("2022-09-24T23:11:24.557")),
+    PHYSICS("physics", LocalDateTime.parse("2022-09-25T04:28:47.147")),
+    ELECTRONICS("electronics", LocalDateTime.parse("2022-09-25T04:28:50.163"));
 
     private String dumpName;
 
