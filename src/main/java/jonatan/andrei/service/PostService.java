@@ -56,16 +56,16 @@ public class PostService {
                             .integrationAnonymousUserId(isNull(userId) ? null : UUID.randomUUID().toString())
                             .build(), integrateWithQRDatabase);
 
-                    if (isQuestion) {
-                        Integer views = Optional.ofNullable(findValue("ViewCount", post, Post.class))
-                                .map(v -> Integer.valueOf(v))
-                                .orElse(0);
-                        questionRecommenderProxyService.registerViews(ViewsRequestDto.builder()
-                                .integrationUsersId(new ArrayList<>())
-                                .totalViews(views)
-                                .integrationQuestionId(findValue("Id", post, Post.class))
-                                .build(), integrateWithQRDatabase);
-                    }
+//                    if (isQuestion) {
+//                        Integer views = Optional.ofNullable(findValue("ViewCount", post, Post.class))
+//                                .map(v -> Integer.valueOf(v))
+//                                .orElse(0);
+//                        questionRecommenderProxyService.registerViews(ViewsRequestDto.builder()
+//                                .integrationUsersId(new ArrayList<>())
+//                                .totalViews(views)
+//                                .integrationQuestionId(findValue("Id", post, Post.class))
+//                                .build(), integrateWithQRDatabase);
+//                    }
                 }
             } catch (Exception e) {
                 Log.error("Error converting post: " + findValue("Id", post, Post.class), e);
