@@ -30,7 +30,7 @@ public class ConvertDataService {
         tagService.save(endDate, integrateWithQRDatabase, dumpName);
         userService.save(endDate, integrateWithQRDatabase, dumpName);
         postService.save(endDate, integrateWithQRDatabase, dumpName);
-        postService.registerBestAnswer(endDate, integrateWithQRDatabase, dumpName);
+        //postService.registerBestAnswer(endDate, integrateWithQRDatabase, dumpName);
         postService.saveComments(endDate, integrateWithQRDatabase, dumpName);
         postService.saveQuestionFollower(endDate, integrateWithQRDatabase, dumpName);
     }
